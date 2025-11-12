@@ -1,0 +1,37 @@
+[2025-11-12 15:50:13] --- Servidor iniciado. Esperando conexiones. ---
+[2025-11-12 15:50:18] Servidor escuchando en 0.0.0.0:5000
+[2025-11-12 15:50:37] 🔗 Migna se ha conectado desde ('127.0.0.1', 51912)
+[2025-11-12 15:50:38] 📢 Servidor: Migna se ha unido al chat.
+[2025-11-12 15:50:49] 💬 Migna: Holaaa gente
+[2025-11-12 15:51:00] 💬 Migna: como salgo ah
+[2025-11-12 15:51:50] 💬 Migna: ayudaaaa
+[2025-11-12 15:51:53] 📢 Servidor: Migna se ha desconectado.
+[2025-11-12 15:51:53] ❌ Migna (conexión cerrada).
+[2025-11-12 15:54:06] --- Servidor iniciado. Esperando conexiones. ---
+[2025-11-12 15:54:11] Servidor escuchando en 0.0.0.0:5000
+[2025-11-12 15:57:50] --- Servidor iniciado (Dark Mode). Esperando conexiones. ---
+[2025-11-12 15:57:54] Servidor escuchando en 0.0.0.0:5000
+[2025-11-12 15:58:14] 🔗 Neo se ha conectado desde ('127.0.0.1', 58249)
+[2025-11-12 15:58:14] 📢 Servidor: Neo se ha unido al chat.
+[2025-11-12 15:58:25] 💬 Neo: hola gente como estan
+[2025-11-12 15:58:36] 💬 Neo: hello
+[2025-11-12 16:01:52] 📢 Servidor: Neo se ha desconectado.
+[2025-11-12 16:01:52] ❌ Neo (conexión cerrada).
+[2025-11-12 16:06:45] --- Servidor iniciado (Dark Mode). Esperando conexiones. ---
+[2025-11-12 16:07:27] Servidor escuchando en 0.0.0.0:5000
+[2025-11-12 16:07:30] 🔗 Migna se ha conectado desde ('127.0.0.1', 59784)
+[2025-11-12 16:07:30] 📢 Servidor: Migna se ha unido al chat.
+[2025-11-12 16:07:44] 💬 Migna: que onda gente
+[2025-11-12 16:08:18] 💬 Migna: jajajaja
+[2025-11-12 16:08:22] 💬 Migna: holaaa
+[2025-11-12 16:09:01] 💬 Migna: holaaaaaaaaaaa
+[2025-11-12 16:10:35] 💬 Migna: que hago aqui
+[2025-11-12 16:11:04] 💬 Migna: pipipipi
+[2025-11-12 16:11:12] 📢 Servidor: Migna se ha desconectado.
+[2025-11-12 16:11:12] ❌ Migna (conexión cerrada).
+[2025-11-12 16:20:37] --- Servidor (Modular) iniciado. Esperando conexiones. ---
+[2025-11-12 16:20:41] Servidor escuchando en 0.0.0.0:5000
+[2025-11-12 16:21:00] 🔗 Migna se ha conectado desde ('127.0.0.1', 53015)
+[2025-11-12 16:21:00] 📢 Servidor: Migna se ha unido al chat.
+[2025-11-12 16:21:06] 💬 Migna: holaa
+[2025-11-12 16:21:15] 💬 Migna: how are you?

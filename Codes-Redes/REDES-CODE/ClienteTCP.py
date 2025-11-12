@@ -4,13 +4,25 @@ import tkinter as tk
 from tkinter import scrolledtext
 from tkinter import ttk, messagebox
 
-HOST = "127.0.0.1"  # IP del servidor (127.0.0.1 si está en la misma PC)
+HOST = "127.0.0.1"
 PORT = 5000
 
 client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 connected = False
 
-# --- Conectar con el servidor ---
+# --- COLORES DARK MODE ---
+BG_COLOR = "#2d2d2d"
+FG_COLOR = "#d0d0d0"
+WIDGET_BG = "#3c3c3c"
+WIDGET_FG = "#d0d0d0"
+BTN_BG = "#555555"
+BTN_FG = "#ffffff"
+BTN_ACTIVE = "#6a6a6a"
+GREEN_STATUS = "#4CAF50"
+RED_STATUS = "#F44336"
+# Color especial para el texto del "cursor" en las cajas de entrada
+ENTRY_CURSOR = "#ffffff" 
+
 def conectar():
     global connected
     username = entry_user.get()
@@ -22,12 +34,10 @@ def conectar():
         client.connect((HOST, PORT))
         connected = True
         
-        # Enviar el nombre de usuario primero
         client.sendall(username.encode("utf-8"))
         
-        status_label.config(text=f"🟢 Conectado como: {username}", foreground="green")
+        status_label.config(text=f"🟢 Conectado como: {username}", foreground=GREEN_STATUS)
         
-        # Habilitar chat y deshabilitar conexión
         entry_msg.config(state=tk.NORMAL)
         btn_enviar.config(state=tk.NORMAL)
         entry_user.config(state=tk.DISABLED)
@@ -38,7 +48,6 @@ def conectar():
         chat_area.config(state=tk.DISABLED)
         chat_area.see(tk.END)
         
-        # Iniciar hilo para recibir mensajes
         threading.Thread(target=recibir_mensajes, daemon=True).start()
         
     except Exception as e:
@@ -48,7 +57,6 @@ def conectar():
         chat_area.config(state=tk.DISABLED)
         chat_area.see(tk.END)
 
-# --- Recibir mensajes del servidor ---
 def recibir_mensajes():
     global connected
     while connected:
@@ -58,25 +66,29 @@ def recibir_mensajes():
                 raise Exception("Servidor desconectado.")
             
             chat_area.config(state=tk.NORMAL)
-            chat_area.insert(tk.END, data.decode('utf-8')) # El servidor ya envía el \n
+            chat_area.insert(tk.END, data.decode('utf-8'))
             chat_area.config(state=tk.DISABLED)
             chat_area.see(tk.END)
         except:
-            status_label.config(text="🔴 Desconectado", fg="red")
+            status_label.config(text="🔴 Desconectado", fg=RED_STATUS)
             entry_msg.config(state=tk.DISABLED)
             btn_enviar.config(state=tk.DISABLED)
             connected = False
-            client.close()
+            # client.close() # No cerrar aquí, se maneja en 'al_cerrar'
             break
 
-# --- Enviar mensajes al servidor ---
-def enviar(event=None): # event=None para poder bindear 'Enter'
+def enviar(event=None):
     msg = entry_msg.get()
     if msg and connected:
+        # Añadir "Tú: " al chat localmente
+        chat_area.config(state=tk.NORMAL)
+        chat_area.insert(tk.END, f"💬 Tú: {msg}\n")
+        chat_area.config(state=tk.DISABLED)
+        chat_area.see(tk.END)
+        
         client.sendall(msg.encode("utf-8"))
         entry_msg.delete(0, tk.END)
         
-# --- Cerrar ventana (opcional pero buena práctica) ---
 def al_cerrar():
     global connected
     if connected:
@@ -85,14 +97,45 @@ def al_cerrar():
     ventana.quit()
     ventana.destroy()
 
-# --- Interfaz Tkinter (Mejorada con ttk) ---
+# --- Interfaz Tkinter (Dark Mode) ---
 ventana = tk.Tk()
-ventana.title("Cliente TCP - Chat")
+ventana.title("Cliente TCP - Chat (Dark)")
 ventana.geometry("450x450")
+ventana.configure(bg=BG_COLOR)
 
-# Estilo
+# --- Configuración de Estilo Dark Mode ---
 style = ttk.Style(ventana)
 style.theme_use('clam')
+
+# Estilos generales
+style.configure('.',
+                background=BG_COLOR,
+                foreground=FG_COLOR,
+                fieldbackground=WIDGET_BG,
+                borderwidth=0)
+
+style.configure('TFrame', background=BG_COLOR)
+
+# TButton
+style.configure('TButton',
+                background=BTN_BG,
+                foreground=BTN_FG,
+                bordercolor=WIDGET_BG)
+style.map('TButton',
+          background=[('active', BTN_ACTIVE), ('disabled', WIDGET_BG)],
+          foreground=[('disabled', BTN_BG)])
+
+# TLabel
+style.configure('TLabel', background=BG_COLOR, foreground=FG_COLOR)
+
+# TEntry (cajas de texto)
+style.configure('TEntry',
+                foreground=WIDGET_FG,
+                fieldbackground=WIDGET_BG,
+                insertcolor=ENTRY_CURSOR) # Color del cursor de texto
+style.map('TEntry',
+          fieldbackground=[('disabled', WIDGET_BG)],
+          foreground=[('disabled', BTN_BG)])
 
 # --- Frame de Conexión ---
 conn_frame = ttk.Frame(ventana, padding="10 10 10 10")
@@ -108,10 +151,16 @@ btn_conectar.pack(side=tk.LEFT, padx=5)
 chat_frame = ttk.Frame(ventana, padding="10 0 10 10")
 chat_frame.pack(fill=tk.BOTH, expand=True)
 
-chat_area = scrolledtext.ScrolledText(chat_frame, wrap=tk.WORD, height=15, state='disabled', font=("Arial", 10))
+chat_area = scrolledtext.ScrolledText(chat_frame, wrap=tk.WORD, height=15,
+                                      font=("Arial", 10),
+                                      bg=WIDGET_BG,
+                                      fg=WIDGET_FG,
+                                      insertbackground=ENTRY_CURSOR, # Cursor
+                                      state='disabled')
 chat_area.pack(fill=tk.BOTH, expand=True, padx=5, pady=5)
 
-status_label = ttk.Label(chat_frame, text="🔴 Desconectado", foreground="red", font=("Arial", 10, "bold"), anchor="center")
+status_label = ttk.Label(chat_frame, text="🔴 Desconectado", foreground=RED_STATUS,
+                         font=("Arial", 10, "bold"), anchor="center")
 status_label.pack(fill=tk.X, pady=5)
 
 # --- Frame de Mensaje ---
@@ -123,10 +172,7 @@ entry_msg.pack(side=tk.LEFT, fill=tk.X, expand=True, padx=5)
 btn_enviar = ttk.Button(msg_frame, text="Enviar", state=tk.DISABLED, command=enviar)
 btn_enviar.pack(side=tk.LEFT, padx=5)
 
-# Bindear la tecla 'Enter' para enviar
 ventana.bind('<Return>', enviar)
-
-# Manejar cierre de ventana
 ventana.protocol("WM_DELETE_WINDOW", al_cerrar)
 
 ventana.mainloop()
