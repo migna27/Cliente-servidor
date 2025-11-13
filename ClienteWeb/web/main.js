@@ -74,28 +74,36 @@ window.onload = function() {
     };
 
     // Enviar mensaje
-   sendButton.onclick = async function() { 
-    const msg = msgInput.value;
-    if (!msg) return;
+   connButton.onclick = function() {
+        const username = userInput.value;
+        // Llama a la función de Python
+        eel.conectar_py(username);
+    };
 
-    // Llama a la función de Python y ESPERA el resultado
-    const msgEnviado = await eel.enviar_mensaje_py(msg); 
-    
-    if (msgEnviado) {
-        
-       
-        if (!msgEnviado.startsWith('/')) {
+    // Enviar mensaje
+   
+   sendButton.onclick = function() { 
+        const msg = msgInput.value;
+        if (!msg) return;
+
+        // --- Aplicamos la lógica del cliente Tkinter ---
+
+        // 1. Si NO es un comando, actualiza la UI local INMEDIATAMENTE.
+        if (!msg.startsWith('/')) {
             actualizar_chat_js({
                 type: "chat",
-                id: "local-" + Date.now(),
+                id: "local-" + Date.now(), // ID local
                 prefix: "💬 Tú: ",
-                payload: msgEnviado 
+                payload: msg
             });
         }
         
+        // 2. Limpia la caja de texto INMEDIATAMENTE.
         msgInput.value = ""; 
-    }
-};
+
+        // 3. Ahora, envía el mensaje al backend (sin esperar respuesta).
+        eel.enviar_mensaje_py(msg); 
+    };
 
     // Permitir enviar con 'Enter'
     msgInput.addEventListener('keydown', function(e) {

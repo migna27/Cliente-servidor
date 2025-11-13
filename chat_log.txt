@@ -113,3 +113,31 @@
 [2025-11-12 18:28:28] 🔗 Neo se ha conectado desde ('127.0.0.1', 49367)
 [2025-11-12 18:28:33] [ID: 80295d6f] 💬 Neo: QQ
 [2025-11-12 18:32:10] ❌ Neo (conexión cerrada).
+[2025-11-12 18:38:04] --- Servidor (Modular) iniciado. Esperando conexiones. ---
+[2025-11-12 18:38:07] Servidor escuchando en 0.0.0.0:5000
+[2025-11-12 18:38:22] 🔗 Migna se ha conectado desde ('127.0.0.1', 51593)
+[2025-11-12 18:38:27] [ID: 38dbe10f] 💬 Migna: Hola
+[2025-11-12 18:38:29] [ID: f84ef787] 💬 Migna: Hola
+[2025-11-12 18:41:29] 🔗 neo se ha conectado desde ('127.0.0.1', 51688)
+[2025-11-12 18:41:36] [ID: db54dc61] 💬 neo: holaaaa
+[2025-11-12 18:41:42] [ID: 7de02280] 💬 Migna: Hola
+[2025-11-12 18:44:35] [ID: 63a642fe] 💬 neo: hola migna
+[2025-11-12 18:53:12] ❌ neo (conexión cerrada).
+[2025-11-12 18:54:31] --- Servidor (Modular) iniciado. Esperando conexiones. ---
+[2025-11-12 18:54:33] Servidor escuchando en 0.0.0.0:5000
+[2025-11-12 18:54:50] 🔗 Migna se ha conectado desde ('127.0.0.1', 49667)
+[2025-11-12 18:55:03] 🔗 Neo se ha conectado desde ('127.0.0.1', 51655)
+[2025-11-12 18:55:10] [ID: 5e59d4c3] 💬 Migna: hola
+[2025-11-12 18:55:23] [ID: 79ec46d1] 💬 Neo: GG
+[2025-11-12 18:55:31] [ID: d66d7086] 💬 Migna: Ya funciona yei
+[2025-11-12 18:55:36] [ID: 55bc24b7] 💬 Neo: Yei
+[2025-11-12 18:57:40] [ID: 891440f7] 💬 Migna: que haces
+[2025-11-12 18:57:51] [ID: b8b4395b] 💬 Neo: nadota
+[2025-11-12 19:00:53] ❌ Migna (conexión cerrada).
+[2025-11-12 19:01:35] 🔗 Migna se ha conectado desde ('127.0.0.1', 58414)
+[2025-11-12 19:01:45] [ID: 1f4c92a9] 💬 Migna: Hola
+[2025-11-12 19:02:12] [ID: e1764b00] 💬 Neo: hola mignaaaaaaaaaa
+[2025-11-12 19:02:19] [ID: b6eddb92] 💬 Migna: neoooooooooooooo
+[2025-11-12 19:02:39] ❌ Neo (conexión cerrada).
+[2025-11-12 19:02:43] ❌ Migna (conexión cerrada).
+[2025-11-12 19:10:02] --- Servidor (Modular) iniciado. Esperando conexiones. ---
