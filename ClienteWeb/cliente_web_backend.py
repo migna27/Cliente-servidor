@@ -2,6 +2,7 @@ import eel
 import socket
 import threading
 import json
+import os
 
 HOST = "127.0.0.1"
 PORT = 5000
@@ -11,7 +12,14 @@ connected = False
 recv_buffer = ""
 
 # Inicializa Eel en la carpeta 'web'
-eel.init('web')
+# Resuelve la ruta absoluta a la carpeta 'web'
+# Esto hace que funcione sin importar desde dónde ejecutes el script
+script_dir = os.path.dirname(os.path.abspath(__file__))
+web_folder = os.path.join(script_dir, 'web')
+
+# Inicializa Eel usando la ruta absoluta
+eel.init(web_folder)
+
 
 def recibir_mensajes():
     global connected, recv_buffer

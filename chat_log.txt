@@ -75,3 +75,41 @@
 [2025-11-12 17:48:51] ❌ Migna (conexión cerrada).
 [2025-11-12 18:00:32] --- Servidor (Modular) iniciado. Esperando conexiones. ---
 [2025-11-12 18:00:34] Servidor escuchando en 0.0.0.0:5000
+[2025-11-12 18:15:14] --- Servidor (Modular) iniciado. Esperando conexiones. ---
+[2025-11-12 18:15:16] Servidor escuchando en 0.0.0.0:5000
+[2025-11-12 18:18:32] 🔗 Migna se ha conectado desde ('127.0.0.1', 64223)
+[2025-11-12 18:18:52] [ID: 2a9b530a] 💬 Migna: Mignaaa
+[2025-11-12 18:19:01] [ID: e737d380] 💬 Migna: aaaa
+[2025-11-12 18:21:56] ❌ Migna (conexión cerrada).
+[2025-11-12 18:22:58] 🔗 migna se ha conectado desde ('127.0.0.1', 51386)
+[2025-11-12 18:23:01] [ID: 9f78e305] 💬 migna: hola
+[2025-11-12 18:23:03] [ID: 3637df89] 💬 migna: hola
+[2025-11-12 18:23:04] [ID: f86f2476] 💬 migna: hola
+[2025-11-12 18:23:04] [ID: 8bf05638] 💬 migna: hola
+[2025-11-12 18:23:04] [ID: a9725fa6] 💬 migna: hola
+[2025-11-12 18:23:05] [ID: ef0a2787] 💬 migna: hola
+[2025-11-12 18:23:05] [ID: 00f1120c] 💬 migna: hola
+[2025-11-12 18:23:05] [ID: 03616f18] 💬 migna: hola
+[2025-11-12 18:23:05] [ID: 4489ab3a] 💬 migna: hola
+[2025-11-12 18:23:05] [ID: bea863b8] 💬 migna: hola
+[2025-11-12 18:23:06] [ID: 793580b9] 💬 migna: hola
+[2025-11-12 18:23:06] [ID: da09a0fb] 💬 migna: hola
+[2025-11-12 18:23:06] [ID: 90cb0028] 💬 migna: hola
+[2025-11-12 18:23:06] [ID: 443b5ab2] 💬 migna: hola
+[2025-11-12 18:23:06] [ID: 886743f5] 💬 migna: hola
+[2025-11-12 18:23:06] [ID: 4c9ee5ff] 💬 migna: hola
+[2025-11-12 18:23:07] [ID: cbbc18d9] 💬 migna: hola
+[2025-11-12 18:23:07] [ID: 5917ea2a] 💬 migna: hola
+[2025-11-12 18:23:07] [ID: d3e1477a] 💬 migna: hola
+[2025-11-12 18:23:08] [ID: b627232e] 💬 migna: hola
+[2025-11-12 18:24:21] ❌ migna (conexión cerrada).
+[2025-11-12 18:24:33] 🔗 Migna se ha conectado desde ('127.0.0.1', 55992)
+[2025-11-12 18:24:41] [ID: 626e788c] 💬 Migna: GG
+[2025-11-12 18:24:41] [ID: 68d79fba] 💬 Migna: GG
+[2025-11-12 18:24:41] [ID: 9d80e279] 💬 Migna: GG
+[2025-11-12 18:24:42] [ID: 5f9d8796] 💬 Migna: GG
+[2025-11-12 18:24:43] [ID: 2ddf50c0] 💬 Migna: GG
+[2025-11-12 18:24:46] ❌ Migna (conexión cerrada).
+[2025-11-12 18:28:28] 🔗 Neo se ha conectado desde ('127.0.0.1', 49367)
+[2025-11-12 18:28:33] [ID: 80295d6f] 💬 Neo: QQ
+[2025-11-12 18:32:10] ❌ Neo (conexión cerrada).

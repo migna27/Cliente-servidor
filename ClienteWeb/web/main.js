@@ -74,24 +74,28 @@ window.onload = function() {
     };
 
     // Enviar mensaje
-    sendButton.onclick = async function() {
-        const msg = msgInput.value;
-        if (!msg) return;
+   sendButton.onclick = async function() { 
+    const msg = msgInput.value;
+    if (!msg) return;
 
-        // Llama a la función de Python
-        const msgEnviado = await eel.enviar_mensaje_py(msg);
+    // Llama a la función de Python y ESPERA el resultado
+    const msgEnviado = await eel.enviar_mensaje_py(msg); 
+    
+    if (msgEnviado) {
         
-        if (msgEnviado) {
-            // Mostrar nuestro propio mensaje localmente
+       
+        if (!msgEnviado.startsWith('/')) {
             actualizar_chat_js({
                 type: "chat",
                 id: "local-" + Date.now(),
                 prefix: "💬 Tú: ",
-                payload: msgEnviado
+                payload: msgEnviado 
             });
-            msgInput.value = ""; // Limpiar input
         }
-    };
+        
+        msgInput.value = ""; 
+    }
+};
 
     // Permitir enviar con 'Enter'
     msgInput.addEventListener('keydown', function(e) {
