@@ -141,3 +141,19 @@
 [2025-11-12 19:02:39] ❌ Neo (conexión cerrada).
 [2025-11-12 19:02:43] ❌ Migna (conexión cerrada).
 [2025-11-12 19:10:02] --- Servidor (Modular) iniciado. Esperando conexiones. ---
+[2025-11-12 20:22:52] --- Servidor (Modular) iniciado. Esperando conexiones. ---
+[2025-11-12 20:22:58] Servidor escuchando en 0.0.0.0:5000
+[2025-11-12 20:26:19] 🔗 Migna se ha conectado desde ('127.0.0.1', 56721)
+[2025-11-12 20:27:02] 🔗 Neo se ha conectado desde ('127.0.0.1', 64020)
+[2025-11-12 20:27:11] [ID: 080afcde] 💬 Migna: Heloooo
+[2025-11-12 20:27:28] [ADMIN_ACTION] Admin eliminó mensaje ID: 080afcde
+[2025-11-12 20:28:03] [ID: 47dd453e] 💬 Neo: holi
+[2025-11-12 20:28:13] [ADMIN_ACTION] Admin eliminó mensaje ID: 47dd453e
+[2025-11-12 20:28:23] [ADMIN_ACTION] Admin ha limpiado las ventanas de chat.
+[2025-11-12 20:28:47] [ID: admin_4d11] 📢 [ADMIN]: Prueba de eliminacion de mensaje especifico hecha
+[2025-11-12 20:29:58] [ID: 02d23034] 💬 Migna: gg
+[2025-11-12 20:31:03] [ID: f75cf6b3] 💬 Neo: aaaaaaaaaaaaaaa
+[2025-11-12 20:31:07] [ID: 399b2e42] 💬 Migna: aaaaaaaaaaaaaaaaaaaaaa
+[2025-11-12 20:31:19] ❌ Neo (conexión cerrada).
+[2025-11-12 20:31:23] ❌ Migna (conexión cerrada).
+[2025-11-12 20:31:29] --- Servidor (Modular) iniciado. Esperando conexiones. ---
