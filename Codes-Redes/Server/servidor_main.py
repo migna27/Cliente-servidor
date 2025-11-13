@@ -8,6 +8,7 @@ from tkinter import ttk
 import config
 import logger
 import command_handler
+import network_utils
 
 # --- Estado Global del Servidor ---
 clientes = {}  # {conn: username}
@@ -36,15 +37,16 @@ def log_y_mostrar(mensaje):
     chat_area.config(state=tk.DISABLED)
 
 
-def broadcast(mensaje, prefijo="", sender_conn=None):
+def broadcast(mensaje, prefijo="", sender_conn=None, log_this=True):
     """
     Envía un mensaje a todos los clientes, excepto al remitente.
     También lo loguea.
     """
     mensaje_formateado = f"{prefijo}{mensaje}"
     
-    ### Ahora llama a nuestra nueva función central ###
-    log_y_mostrar(mensaje_formateado)
+    ###Loguear solo si se solicita ###
+    if log_this:
+        log_y_mostrar(mensaje_formateado)
     
     mensaje_para_clientes = f"{mensaje_formateado}\n".encode("utf-8")
     
@@ -168,6 +170,75 @@ status_label.pack(pady=5, fill=tk.X)
 btn_iniciar = ttk.Button(main_frame, text="Iniciar Servidor",
                          command=lambda: threading.Thread(target=iniciar_servidor, daemon=True).start())
 btn_iniciar.pack(pady=5, fill=tk.X, padx=5)
+
+
+# -- Frame de Controles de Admin ---
+
+def on_send_admin_notification():
+    """Envía un mensaje de admin a todos."""
+    msg = admin_msg_entry.get()
+    if not msg:
+        return
+    # Llama a broadcast, lo loguea (por defecto) y lo envía a todos
+    broadcast(msg, prefijo="📢 [ADMIN]: ", sender_conn=None)
+    admin_msg_entry.delete(0, tk.END)
+
+def on_clear_all_chats():
+    """Limpia la pantalla de chat de todos los clientes."""
+    # 1. Loguear la acción administrativa por separado
+    log_y_mostrar("[ADMIN_ACTION] Admin ha limpiado las ventanas de chat.")
+    
+    # 2. Enviar el comando secreto a todos SIN LOGUEARLO
+    broadcast("__CLEAR_CHAT__", prefijo="", sender_conn=None, log_this=False)
+
+admin_frame = ttk.Frame(main_frame, style='TFrame')
+admin_frame.pack(fill=tk.X, padx=5, pady=(10, 5))
+
+admin_msg_entry = ttk.Entry(admin_frame, style='TEntry')
+admin_msg_entry.pack(side=tk.LEFT, fill=tk.X, expand=True, padx=(0, 5))
+
+btn_send_admin = ttk.Button(admin_frame, text="Enviar Notificación", command=on_send_admin_notification)
+btn_send_admin.pack(side=tk.LEFT)
+
+btn_clear_chat = ttk.Button(admin_frame, text="Limpiar Chats", command=on_clear_all_chats, style='TButton')
+btn_clear_chat.pack(side=tk.LEFT, padx=5)
+
+
+
+# Crear un marco para la información de IP
+info_frame = ttk.Frame(main_frame, style='TFrame')
+info_frame.pack(fill=tk.X, padx=5, pady=(5, 0))
+
+info_frame.columnconfigure(1, weight=1) # Hacer que la columna 1 (la IP) se expanda
+
+# Obtener la IP Local (LAN)
+try:
+    local_ip = network_utils.get_local_ip()
+except Exception as e:
+    print(f"Error interno al obtener IP: {e}") # Imprime el error real en la consola
+    local_ip = "Error al obtener IP"
+
+# Etiqueta y texto para Conexión Local (Misma PC)
+ttk.Label(info_frame, text="IP Local (Misma PC):", font=("Arial", 10, "bold")).grid(row=0, column=0, sticky="w", padx=5)
+ip_local_text = tk.Text(info_frame, height=1, borderwidth=0, 
+                         bg=config.WIDGET_BG, fg=config.WIDGET_FG, 
+                         font=("Courier", 10))
+ip_local_text.insert(tk.END, f"127.0.0.1:{config.PORT}")
+ip_local_text.config(state=tk.DISABLED) # Hacerlo de solo lectura
+ip_local_text.grid(row=0, column=1, sticky="ew", padx=5)
+
+# Etiqueta y texto para Conexión de Red (LAN)
+ttk.Label(info_frame, text="IP de Red (LAN):", font=("Arial", 10, "bold")).grid(row=1, column=0, sticky="w", padx=5)
+ip_lan_text = tk.Text(info_frame, height=1, borderwidth=0, 
+                       bg=config.WIDGET_BG, fg=config.WIDGET_FG, 
+                       font=("Courier", 10))
+ip_lan_text.insert(tk.END, f"{local_ip}:{config.PORT}")
+ip_lan_text.config(state=tk.DISABLED) # Hacerlo de solo lectura
+ip_lan_text.grid(row=1, column=1, sticky="ew", padx=5)
+
+# Etiqueta para IP Pública
+ttk.Label(info_frame, text="IP Pública (Internet):", font=("Arial", 10, "bold")).grid(row=2, column=0, sticky="w", padx=5)
+ttk.Label(info_frame, text="(Debes buscar 'Cual es mi IP' en Google)", font=("Arial", 9, "italic")).grid(row=2, column=1, sticky="w", padx=5)
 
 # --- Saludo Inicial ---
 log_y_mostrar("--- Servidor (Modular) iniciado. Esperando conexiones. ---")

@@ -65,10 +65,23 @@ def recibir_mensajes():
             if not data:
                 raise Exception("Servidor desconectado.")
             
-            chat_area.config(state=tk.NORMAL)
-            chat_area.insert(tk.END, data.decode('utf-8'))
-            chat_area.config(state=tk.DISABLED)
-            chat_area.see(tk.END)
+            msg = data.decode('utf-8')
+
+            # --- INICIO DE NUEVA LÓGICA ---
+            if msg.strip() == "__CLEAR_CHAT__":
+                # Es el comando secreto para limpiar
+                chat_area.config(state=tk.NORMAL)
+                chat_area.delete('1.0', tk.END) # Borrar todo el contenido
+                chat_area.insert(tk.END, "📢 El chat fue limpiado por un administrador.\n")
+                chat_area.config(state=tk.DISABLED)
+            else:
+                # Es un mensaje normal
+                chat_area.config(state=tk.NORMAL)
+                chat_area.insert(tk.END, msg) # 'msg' ya incluye el \n
+                chat_area.config(state=tk.DISABLED)
+                chat_area.see(tk.END)
+            
+            
         except:
             status_label.config(text="🔴 Desconectado", fg=RED_STATUS)
             entry_msg.config(state=tk.DISABLED)
