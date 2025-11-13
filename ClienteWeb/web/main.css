@@ -1,0 +1,88 @@
+/* Pega tus estilos de tu otro repositorio aquí */
+
+/* Estilos base (si no tienes los tuyos) */
+body {
+    font-family: Arial, sans-serif;
+    background-color: #2d2d2d;
+    color: #d0d0d0;
+    margin: 0;
+    padding: 10px;
+    box-sizing: border-box;
+}
+
+#chat-container {
+    display: flex;
+    flex-direction: column;
+    height: 95vh;
+}
+
+#conn-frame {
+    padding: 20px;
+    background-color: #3c3c3c;
+    border-radius: 8px;
+    max-width: 300px;
+    margin: 50px auto;
+}
+
+#chat-area {
+    flex-grow: 1;
+    background-color: #3c3c3c;
+    border: 1px solid #555;
+    border-radius: 8px;
+    padding: 10px;
+    overflow-y: auto;
+    margin-bottom: 10px;
+}
+
+.chat-message {
+    margin-bottom: 5px;
+}
+
+.chat-message.server {
+    color: #4CAF50;
+    font-style: italic;
+}
+
+.chat-message.deleted {
+    color: #F44336;
+    font-style: italic;
+}
+
+#status-label {
+    margin-bottom: 10px;
+    text-align: center;
+    font-weight: bold;
+    color: #F44336; /* Empieza en rojo */
+}
+
+#msg-frame, #conn-frame {
+    display: flex;
+    gap: 10px;
+}
+
+input[type="text"] {
+    flex-grow: 1;
+    background-color: #3c3c3c;
+    color: #d0d0d0;
+    border: 1px solid #555;
+    padding: 8px;
+    border-radius: 5px;
+}
+
+button {
+    background-color: #555555;
+    color: #ffffff;
+    border: none;
+    padding: 8px 12px;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+button:hover {
+    background-color: #6a6a6a;
+}
+
+#error-log {
+    color: #F44336;
+    margin-top: 10px;
+}
