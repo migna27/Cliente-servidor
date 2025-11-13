@@ -3,6 +3,8 @@ import threading
 import tkinter as tk
 from tkinter import scrolledtext
 from tkinter import ttk
+import json  # Importar JSON
+import uuid  # Importar para IDs únicos
 
 # ### Importar nuestros módulos ###
 import config
@@ -16,7 +18,6 @@ lock = threading.Lock() # Lock para la lista de 'clientes'
 
 # --- Funciones de Lógica de Red ---
 
-### función para centralizar el log Y la GUI ###
 def log_y_mostrar(mensaje):
     """
     Paso 1: Escribe el mensaje en el archivo de log (usando nuestro módulo logger).
@@ -26,8 +27,6 @@ def log_y_mostrar(mensaje):
     logger.escribir_log(mensaje)
     
     # Paso 2: Mostrar en la GUI
-    # (El timestamp ya lo añade el módulo logger, pero lo añadimos aquí 
-    # para la GUI)
     from datetime import datetime
     timestamp = datetime.now().strftime("%H:%M:%S") # Hora corta para la GUI
     
@@ -37,29 +36,29 @@ def log_y_mostrar(mensaje):
     chat_area.config(state=tk.DISABLED)
 
 
-def broadcast(mensaje, prefijo="", sender_conn=None, log_this=True):
+def broadcast_data(data_dict, sender_conn=None):
     """
-    Envía un mensaje a todos los clientes, excepto al remitente.
-    También lo loguea.
+    Convierte un diccionario a JSON y lo envía a todos los clientes
+    (excepto al remitente).
+    Añade una nueva línea para actuar como delimitador.
     """
-    mensaje_formateado = f"{prefijo}{mensaje}"
-    
-    ###Loguear solo si se solicita ###
-    if log_this:
-        log_y_mostrar(mensaje_formateado)
-    
-    mensaje_para_clientes = f"{mensaje_formateado}\n".encode("utf-8")
-    
-    with lock:
-        for conn in list(clientes.keys()):
-            if conn == sender_conn:
-                continue # No enviar al remitente
-            try:
-                conn.sendall(mensaje_para_clientes)
-            except Exception as e:
-                print(f"Error enviando a {clientes[conn]}: {e}")
-                conn.close()
-                del clientes[conn]
+    try:
+        # Usamos '\n' como delimitador de mensajes JSON
+        mensaje_json = json.dumps(data_dict) + "\n"
+        mensaje_bytes = mensaje_json.encode("utf-8")
+        
+        with lock:
+            for conn in list(clientes.keys()):
+                if conn == sender_conn:
+                    continue
+                try:
+                    conn.sendall(mensaje_bytes)
+                except Exception as e:
+                    print(f"Error enviando a {clientes[conn]}: {e}")
+                    conn.close()
+                    del clientes[conn]
+    except Exception as e:
+        print(f"Error en broadcast_data: {e}")
 
 def manejar_cliente(conn, addr):
     username = None
@@ -71,9 +70,17 @@ def manejar_cliente(conn, addr):
         with lock:
             clientes[conn] = username
         
-        ###Usar log_y_mostrar ###
+        # Loguear localmente
         log_y_mostrar(f"🔗 {username} se ha conectado desde {addr}")
-        broadcast(f"{username} se ha unido al chat.", prefijo="📢 Servidor: ")
+        
+        # Enviar notificación de unión a todos (incluido el nuevo cliente)
+        join_data = {
+            "type": "chat",
+            "id": "server_" + str(uuid.uuid4())[:4],
+            "prefix": "📢 Servidor: ",
+            "payload": f"{username} se ha unido al chat."
+        }
+        broadcast_data(join_data) # Sin sender_conn para que lo reciban todos
 
         while True:
             data = conn.recv(1024)
@@ -82,11 +89,28 @@ def manejar_cliente(conn, addr):
             
             msg = data.decode("utf-8")
             
-            ###Lógica de comando modularizada ###
             if msg.startswith('/'):
+                # Es un comando, pasarlo al command_handler
                 command_handler.procesar_comando(conn, username, msg, clientes, lock)
             else:
-                broadcast(msg, prefijo=f"💬 {username}: ", sender_conn=conn)
+                # Es un mensaje de chat normal
+                # 1. Generar un ID único para este mensaje
+                msg_id = str(uuid.uuid4())[:8] # Un ID corto de 8 caracteres
+                prefix = f"💬 {username}: "
+                
+                # 2. Loguearlo localmente (servidor) con su ID
+                log_y_mostrar(f"[ID: {msg_id}] {prefix}{msg}")
+                
+                # 3. Preparar el paquete de datos JSON para los clientes
+                data_to_send = {
+                    "type": "chat",
+                    "id": msg_id,
+                    "prefix": prefix,
+                    "payload": msg
+                }
+                
+                # 4. Enviar a todos los demás
+                broadcast_data(data_to_send, sender_conn=conn)
             
     except Exception as e:
         print(f"Error con {addr}: {e}")
@@ -95,14 +119,21 @@ def manejar_cliente(conn, addr):
             with lock:
                 del clientes[conn]
             if username:
-                broadcast(f"{username} se ha desconectado.", prefijo="📢 Servidor: ")
-                ### Usar log_y_mostrar ###
+                # Enviar notificación de salida
+                leave_msg = f"{username} se ha desconectado."
+                leave_data = {
+                    "type": "chat",
+                    "id": "server_" + str(uuid.uuid4())[:4],
+                    "prefix": "📢 Servidor: ",
+                    "payload": leave_msg
+                }
+                broadcast_data(leave_data) # Sin sender_conn
+                
                 log_y_mostrar(f"❌ {username} (conexión cerrada).")
         conn.close()
 
 def iniciar_servidor():
     btn_iniciar.config(state=tk.DISABLED, text="Servidor Activo")
-    ### Usar colores desde config ###
     status_label.config(text=f"🟢 Servidor activo en {config.HOST}:{config.PORT}", 
                         foreground=config.GREEN_STATUS)
     
@@ -110,7 +141,6 @@ def iniciar_servidor():
     server.bind((config.HOST, config.PORT))
     server.listen()
     
-    ### Usar log_y_mostrar ###
     log_y_mostrar(f"Servidor escuchando en {config.HOST}:{config.PORT}")
 
     try:
@@ -126,14 +156,12 @@ def iniciar_servidor():
 # --- Interfaz Tkinter ---
 ventana = tk.Tk()
 ventana.title("Servidor TCP - Chat (Modular)")
-ventana.geometry("500x450")
+ventana.geometry("500x550") # Aumenté un poco la altura
 ventana.configure(bg=config.BG_COLOR)
 
 # --- Configuración de Estilo Dark Mode ---
 style = ttk.Style(ventana)
 style.theme_use('clam') 
-
-# Estilos generales (usando config)
 style.configure('.',
                 background=config.BG_COLOR,
                 foreground=config.FG_COLOR,
@@ -148,6 +176,10 @@ style.map('TButton',
           background=[('active', config.BTN_ACTIVE), ('disabled', config.WIDGET_BG)],
           foreground=[('disabled', config.BTN_BG)])
 style.configure('TLabel', background=config.BG_COLOR, foreground=config.FG_COLOR)
+style.configure('TEntry',
+                foreground=config.WIDGET_FG,
+                fieldbackground=config.WIDGET_BG,
+                insertcolor=config.ENTRY_CURSOR)
 
 # --- Creación de Widgets ---
 main_frame = ttk.Frame(ventana, padding="10 10 10 10", style='TFrame')
@@ -175,21 +207,35 @@ btn_iniciar.pack(pady=5, fill=tk.X, padx=5)
 # -- Frame de Controles de Admin ---
 
 def on_send_admin_notification():
-    """Envía un mensaje de admin a todos."""
+    """Envía un mensaje de admin a todos usando el protocolo JSON."""
     msg = admin_msg_entry.get()
     if not msg:
         return
-    # Llama a broadcast, lo loguea (por defecto) y lo envía a todos
-    broadcast(msg, prefijo="📢 [ADMIN]: ", sender_conn=None)
+    
+    msg_id = "admin_" + str(uuid.uuid4())[:4]
+    prefix = "📢 [ADMIN]: "
+    
+    # 1. Loguear localmente
+    log_y_mostrar(f"[ID: {msg_id}] {prefix}{msg}")
+    
+    # 2. Preparar JSON y enviar
+    data_to_send = {
+        "type": "chat",
+        "id": msg_id,
+        "prefix": prefix,
+        "payload": msg
+    }
+    broadcast_data(data_to_send) # Enviar a todos
     admin_msg_entry.delete(0, tk.END)
 
 def on_clear_all_chats():
     """Limpia la pantalla de chat de todos los clientes."""
-    # 1. Loguear la acción administrativa por separado
+    # 1. Loguear la acción
     log_y_mostrar("[ADMIN_ACTION] Admin ha limpiado las ventanas de chat.")
     
-    # 2. Enviar el comando secreto a todos SIN LOGUEARLO
-    broadcast("__CLEAR_CHAT__", prefijo="", sender_conn=None, log_this=False)
+    # 2. Enviar el comando "clear"
+    data_to_send = {"type": "clear"}
+    broadcast_data(data_to_send)
 
 admin_frame = ttk.Frame(main_frame, style='TFrame')
 admin_frame.pack(fill=tk.X, padx=5, pady=(10, 5))
@@ -204,41 +250,68 @@ btn_clear_chat = ttk.Button(admin_frame, text="Limpiar Chats", command=on_clear_
 btn_clear_chat.pack(side=tk.LEFT, padx=5)
 
 
+# --- Frame de Eliminar por ID ---
 
-# Crear un marco para la información de IP
+def on_delete_by_id():
+    """Envía un comando 'delete' con un ID específico."""
+    id_to_delete = admin_id_entry.get().strip()
+    if not id_to_delete:
+        return
+        
+    # 1. Loguear la acción
+    log_y_mostrar(f"[ADMIN_ACTION] Admin eliminó mensaje ID: {id_to_delete}")
+    
+    # 2. Enviar el comando "delete"
+    data_to_send = {"type": "delete", "id": id_to_delete}
+    broadcast_data(data_to_send)
+    
+    admin_id_entry.delete(0, tk.END)
+
+# Nuevo frame para la función de eliminar
+delete_frame = ttk.Frame(main_frame, style='TFrame')
+delete_frame.pack(fill=tk.X, padx=5, pady=5)
+
+ttk.Label(delete_frame, text="ID de Mensaje:").pack(side=tk.LEFT, padx=5)
+admin_id_entry = ttk.Entry(delete_frame, style='TEntry', width=15)
+admin_id_entry.pack(side=tk.LEFT, fill=tk.X, expand=True, padx=(0, 5))
+
+btn_delete_id = ttk.Button(delete_frame, text="Eliminar Mensaje", command=on_delete_by_id)
+btn_delete_id.pack(side=tk.LEFT)
+
+
+# --- Frame de Información de Conexión ---
 info_frame = ttk.Frame(main_frame, style='TFrame')
 info_frame.pack(fill=tk.X, padx=5, pady=(5, 0))
 
-info_frame.columnconfigure(1, weight=1) # Hacer que la columna 1 (la IP) se expanda
+info_frame.columnconfigure(1, weight=1)
 
-# Obtener la IP Local (LAN)
 try:
     local_ip = network_utils.get_local_ip()
 except Exception as e:
-    print(f"Error interno al obtener IP: {e}") # Imprime el error real en la consola
+    print(f"Error interno al obtener IP: {e}")
     local_ip = "Error al obtener IP"
 
-# Etiqueta y texto para Conexión Local (Misma PC)
+# Conexión Local (Misma PC)
 ttk.Label(info_frame, text="IP Local (Misma PC):", font=("Arial", 10, "bold")).grid(row=0, column=0, sticky="w", padx=5)
 ip_local_text = tk.Text(info_frame, height=1, borderwidth=0, 
                          bg=config.WIDGET_BG, fg=config.WIDGET_FG, 
                          font=("Courier", 10))
 ip_local_text.insert(tk.END, f"127.0.0.1:{config.PORT}")
-ip_local_text.config(state=tk.DISABLED) # Hacerlo de solo lectura
+ip_local_text.config(state=tk.DISABLED)
 ip_local_text.grid(row=0, column=1, sticky="ew", padx=5)
 
-# Etiqueta y texto para Conexión de Red (LAN)
+# Conexión de Red (LAN)
 ttk.Label(info_frame, text="IP de Red (LAN):", font=("Arial", 10, "bold")).grid(row=1, column=0, sticky="w", padx=5)
 ip_lan_text = tk.Text(info_frame, height=1, borderwidth=0, 
                        bg=config.WIDGET_BG, fg=config.WIDGET_FG, 
                        font=("Courier", 10))
 ip_lan_text.insert(tk.END, f"{local_ip}:{config.PORT}")
-ip_lan_text.config(state=tk.DISABLED) # Hacerlo de solo lectura
+ip_lan_text.config(state=tk.DISABLED)
 ip_lan_text.grid(row=1, column=1, sticky="ew", padx=5)
 
-# Etiqueta para IP Pública
+# IP Pública
 ttk.Label(info_frame, text="IP Pública (Internet):", font=("Arial", 10, "bold")).grid(row=2, column=0, sticky="w", padx=5)
-ttk.Label(info_frame, text="(Debes buscar 'Cual es mi IP' en Google)", font=("Arial", 9, "italic")).grid(row=2, column=1, sticky="w", padx=5)
+ttk.Label(info_frame, text="(Requiere Port Forwarding o VPN)", font=("Arial", 9, "italic")).grid(row=2, column=1, sticky="w", padx=5)
 
 # --- Saludo Inicial ---
 log_y_mostrar("--- Servidor (Modular) iniciado. Esperando conexiones. ---")

@@ -60,3 +60,16 @@
 [2025-11-12 16:59:14] [ADMIN_ACTION] Admin ha limpiado las ventanas de chat.
 [2025-11-12 16:59:39] 📢 Servidor: Neo se ha desconectado.
 [2025-11-12 16:59:39] ❌ Neo (conexión cerrada).
+[2025-11-12 17:14:00] --- Servidor (Modular) iniciado. Esperando conexiones. ---
+[2025-11-12 17:14:07] Servidor escuchando en 0.0.0.0:5000
+[2025-11-12 17:14:39] 🔗 Migna se ha conectado desde ('127.0.0.1', 63194)
+[2025-11-12 17:14:44] [ID: 0389ebba] 💬 Migna: Holi
+[2025-11-12 17:15:08] [ADMIN_ACTION] Admin eliminó mensaje ID: 0389ebba
+[2025-11-12 17:15:21] [ID: d1f722cc] 💬 Migna: como estan
+[2025-11-12 17:15:39] ❌ Migna (conexión cerrada).
+[2025-11-12 17:37:10] --- Servidor (Modular) iniciado. Esperando conexiones. ---
+[2025-11-12 17:37:33] Servidor escuchando en 0.0.0.0:5000
+[2025-11-12 17:38:06] 🔗 Migna se ha conectado desde ('127.0.0.1', 63605)
+[2025-11-12 17:38:26] [ID: d54634c8] 💬 Migna: Que puedo hacer aqui
+[2025-11-12 17:48:49] [ID: 460da7fd] 💬 Migna: Vamos a migrar de estilo
+[2025-11-12 17:48:51] ❌ Migna (conexión cerrada).

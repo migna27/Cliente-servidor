@@ -3,12 +3,14 @@ import threading
 import tkinter as tk
 from tkinter import scrolledtext
 from tkinter import ttk, messagebox
+import json 
 
 HOST = "127.0.0.1"
 PORT = 5000
 
 client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 connected = False
+recv_buffer = "" # Buffer para mensajes JSON
 
 # --- COLORES DARK MODE ---
 BG_COLOR = "#2d2d2d"
@@ -20,7 +22,6 @@ BTN_FG = "#ffffff"
 BTN_ACTIVE = "#6a6a6a"
 GREEN_STATUS = "#4CAF50"
 RED_STATUS = "#F44336"
-# Color especial para el texto del "cursor" en las cajas de entrada
 ENTRY_CURSOR = "#ffffff" 
 
 def conectar():
@@ -57,42 +58,113 @@ def conectar():
         chat_area.config(state=tk.DISABLED)
         chat_area.see(tk.END)
 
+def process_message_data(msg_data):
+    """Procesa un objeto de mensaje JSON ya decodificado."""
+    global chat_area
+    msg_type = msg_data.get("type")
+
+    try:
+        if msg_type == "chat":
+            msg_id = msg_data.get("id", "unknown")
+            prefix = msg_data.get("prefix", "")
+            payload = msg_data.get("payload", "")
+            full_msg = f"{prefix}{payload}\n"
+            
+            chat_area.config(state=tk.NORMAL)
+            
+            # --- Lógica de Tags para Eliminar ---
+            # 1. Obtenemos el índice DE INICIO (antes de insertar)
+            start_index = chat_area.index(tk.END + "-1c")
+            
+            # 2. Insertamos el texto
+            chat_area.insert(tk.END, full_msg)
+            
+            # 3. Obtenemos el índice DE FIN (después de insertar)
+            end_index = chat_area.index(tk.END + "-1c")
+            
+            # 4. Añadimos un 'tag' al texto que acabamos de insertar
+            #    El nombre del tag es el propio ID del mensaje
+            chat_area.tag_add(msg_id, start_index, end_index)
+            # --- Fin de Lógica de Tags ---
+
+            chat_area.config(state=tk.DISABLED)
+            chat_area.see(tk.END)
+
+        elif msg_type == "delete":
+            id_to_delete = msg_data.get("id")
+            if not id_to_delete:
+                return
+
+            # Buscar rangos de texto con el tag (ID)
+            tag_ranges = chat_area.tag_ranges(id_to_delete)
+            
+            if tag_ranges:
+                # tag_ranges nos da (start, end)
+                start, end = tag_ranges
+                chat_area.config(state=tk.NORMAL)
+                # Reemplazar el contenido
+                chat_area.delete(start, end)
+                chat_area.insert(start, ">> Mensaje eliminado por el administrador <<\n")
+                chat_area.config(state=tk.DISABLED)
+
+        elif msg_type == "clear":
+            chat_area.config(state=tk.NORMAL)
+            chat_area.delete('1.0', tk.END)
+            chat_area.insert(tk.END, "📢 El chat fue limpiado por un administrador.\n")
+            chat_area.config(state=tk.DISABLED)
+            
+    except Exception as e:
+        print(f"Error procesando mensaje: {e}")
+
+
 def recibir_mensajes():
-    global connected
+    global connected, recv_buffer
     while connected:
         try:
-            data = client.recv(1024)
+            # Recibimos datos en el buffer
+            data = client.recv(4096).decode('utf-8')
             if not data:
                 raise Exception("Servidor desconectado.")
             
-            msg = data.decode('utf-8')
+            recv_buffer += data
+            
+            # Procesamos todos los mensajes completos (terminados en \n)
+            # que tengamos en el buffer
+            while "\n" in recv_buffer:
+                # Separamos el primer mensaje del resto
+                message_line, recv_buffer = recv_buffer.split("\n", 1)
+                
+                if not message_line:
+                    continue
+                    
+                # Intentamos decodificar el JSON
+                try:
+                    msg_data = json.loads(message_line)
+                    # Llamamos a la función que procesa la lógica
+                    process_message_data(msg_data)
+                except json.JSONDecodeError:
+                    print(f"Error decodificando JSON, datos corruptos: {message_line}")
 
-            # --- INICIO DE NUEVA LÓGICA ---
-            if msg.strip() == "__CLEAR_CHAT__":
-                # Es el comando secreto para limpiar
-                chat_area.config(state=tk.NORMAL)
-                chat_area.delete('1.0', tk.END) # Borrar todo el contenido
-                chat_area.insert(tk.END, "📢 El chat fue limpiado por un administrador.\n")
-                chat_area.config(state=tk.DISABLED)
-            else:
-                # Es un mensaje normal
-                chat_area.config(state=tk.NORMAL)
-                chat_area.insert(tk.END, msg) # 'msg' ya incluye el \n
-                chat_area.config(state=tk.DISABLED)
-                chat_area.see(tk.END)
-            
-            
-        except:
+        except Exception as e:
+            # Si hay un error, salimos del bucle
+            print(f"Error en recibir_mensajes: {e}")
             status_label.config(text="🔴 Desconectado", fg=RED_STATUS)
             entry_msg.config(state=tk.DISABLED)
             btn_enviar.config(state=tk.DISABLED)
             connected = False
-            # client.close() # No cerrar aquí, se maneja en 'al_cerrar'
-            break
+            break # Salir del bucle while
 
 def enviar(event=None):
     msg = entry_msg.get()
     if msg and connected:
+        # El cliente NO envía JSON, solo texto plano.
+        # El servidor se encarga de envolverlo en JSON.
+        
+        # PERO, sí mostramos el "Tú: " localmente.
+        # Para esto, necesitamos crear un ID local y usar el tag
+        # por si queremos borrar nuestros propios mensajes (aunque no es el caso)
+        # Simplificación: El cliente solo envía el texto crudo.
+        
         # Añadir "Tú: " al chat localmente
         chat_area.config(state=tk.NORMAL)
         chat_area.insert(tk.END, f"💬 Tú: {msg}\n")
@@ -126,10 +198,7 @@ style.configure('.',
                 foreground=FG_COLOR,
                 fieldbackground=WIDGET_BG,
                 borderwidth=0)
-
 style.configure('TFrame', background=BG_COLOR)
-
-# TButton
 style.configure('TButton',
                 background=BTN_BG,
                 foreground=BTN_FG,
@@ -137,15 +206,11 @@ style.configure('TButton',
 style.map('TButton',
           background=[('active', BTN_ACTIVE), ('disabled', WIDGET_BG)],
           foreground=[('disabled', BTN_BG)])
-
-# TLabel
 style.configure('TLabel', background=BG_COLOR, foreground=FG_COLOR)
-
-# TEntry (cajas de texto)
 style.configure('TEntry',
                 foreground=WIDGET_FG,
                 fieldbackground=WIDGET_BG,
-                insertcolor=ENTRY_CURSOR) # Color del cursor de texto
+                insertcolor=ENTRY_CURSOR)
 style.map('TEntry',
           fieldbackground=[('disabled', WIDGET_BG)],
           foreground=[('disabled', BTN_BG)])
@@ -168,7 +233,7 @@ chat_area = scrolledtext.ScrolledText(chat_frame, wrap=tk.WORD, height=15,
                                       font=("Arial", 10),
                                       bg=WIDGET_BG,
                                       fg=WIDGET_FG,
-                                      insertbackground=ENTRY_CURSOR, # Cursor
+                                      insertbackground=ENTRY_CURSOR,
                                       state='disabled')
 chat_area.pack(fill=tk.BOTH, expand=True, padx=5, pady=5)
 
